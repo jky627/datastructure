@@ -8,14 +8,15 @@
 using namespace std;
 
 fstream file;
-
+//123
+//486789
 class sparse_matrix {
 	const static int MAX = 32;
 public:
 	int** data;
 	int row, col;
 	int len = 0;
-
+	//123
 	//三行陣列的建構式  
 	sparse_matrix(int r, int c) {
 		row = r;//原本陣列的列數
