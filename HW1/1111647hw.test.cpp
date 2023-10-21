@@ -18,7 +18,7 @@ public:
 	int len = 0;
 	//123
 	//777
-	// branch
+	// branch2
 	// 888
 	//三行陣列的建構式  
 	sparse_matrix(int r, int c) {
