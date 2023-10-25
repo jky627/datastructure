@@ -4,15 +4,15 @@
 
 using namespace std;
 
-double answer(string s);
+double answer(string s);//全域變數
 
-class digstack {
+class digstack {//運算元stack
 private:
-	int top;
-	int capacity;
-	double* digit;
+	int top;//最上面的~?
+	int capacity;//容量
+	double* digit;//指標數字
 public:
-	digstack() :top(-1), capacity(10) {
+	digstack() :top(-1), capacity(10) {///這是什麼鬼??
 		digit = new double[capacity];
 	}
 	void push(double val);
@@ -23,7 +23,7 @@ public:
 void digstack::push(double val) {
 	if (top + 1 == capacity) {
 		cout << "dig stack is full!" << endl;
-		capacity = capacity * 2;
+		capacity = capacity * 2;//擴充空間，老師上課說的方法
 		double* temp = new double[capacity];
 		copy(digit, digit + top + 1, temp);
 		delete[] digit;
@@ -48,7 +48,7 @@ void digstack::show() {
 	}
 }
 
-class operstack {
+class operstack {//運算子stack
 private:
 	int top;
 	int capacity;
@@ -59,24 +59,24 @@ public:
 	operstack() :top(-1), capacity(10) {
 		operators = new char[capacity];
 	}
-	void push(char oper);
+	void push(char oper);//運算子的放入
 	char pop();
 	bool isEmpty();
 	char cur();
 };
-void operstack::push(char oper) {
-	if (top + 1 == capacity) {
+void operstack::push(char oper) {//運算子放入
+	if (top + 1 == capacity) {//top就是我最上面的位置//top應該要是-1才對(?
 		cout << "oper stack is full!" << endl;
 		capacity = capacity * 2;
-		char* temp = new char[capacity];
+		char* temp = new char[capacity];//建立新的空間(老師課的
 		copy(operators, operators + top + 1, temp);
 		delete[] operators;
 		operators = temp;
 	}
 	operators[++top] = oper;
 }
-char operstack::pop() {
-	if (top == -1) {
+char operstack::pop() {//運算子彈出
+	if (top == -1) {//我知道
 		cout << "oper stack is empty!" << endl;
 		return 0;
 	}
@@ -103,7 +103,7 @@ int main() {
 }
 
 bool isDigit(char c) { //確認是否為數字(運算元)
-	return (c >= '0' && c <= '9');
+	return (c >= '0' && c <= '9');//就代表是true/// (c >= '0' && c <= '9') ? true : false;我自己是這樣
 }
 
 bool isOp(char c) { //確認是否為運算子
@@ -129,32 +129,34 @@ double calculate(double val1, double val2, char oper) {
 	if (oper == '^')  return pow(val1, val2);
 }
 
-double answer(string s) {//浮點數//答案
-	digstack digs;
-	operstack opers;
-	int pos = 0;
+double answer(string s) {//浮點數//答案//從這邊開始
+	digstack digs;//運算元digstack這個類別的digs
+	operstack opers;//運算子
+	int pos = 0;//現在的位置
 
 	while (/*字串還沒有讀完*/) {
-		char spot = s[pos];
-		if (/*如果是現在讀到的是數字*/isDigit(spot)) {
-			digs.push(spot - 48);
-			while (/*讀取位置(pos)的下一個內容也是數字*/isDigit(s[pos + 1])) {
-				//把stack裡最上方的數字pop出來，加上一個位數並加上下一個內容後，再存回stack
-				//換下一個位置讀取
+		char spot = s[pos];//宣告一個字元spot，把s字串中的第pos這個位子的char給spot這個字元
+		if (/*如果是現在讀到的是數字*/isDigit(spot)==true) {///我有動過
+			digs.push(spot - 48);//因為是char所以要減48這樣才是數字
+			while (/*讀取位置(pos)的下一個內容也是數字*/isDigit(s[pos + 1])) {					
+				digs.pop();///我打的但不確定	//把stack裡最上方的數字pop出來，加上一個位數並加上下一個內容後，再存回stack
+
+				s[pos++];//換下一個位置讀取///我打的，不確定是要不要pos++
 			}
 		}
 		else {
 			//數字是負數 情況1.
 			if (/* 現在讀到的是減號'-'&&現在位置是在最前面 */spot == '-' && pos == 0) {
 				//把下一位數字變成負的，存進stack
-				digs.push(-(s[pos + 1] - 48));
+				digs.push(-(s[pos + 1] - 48));///變成數字
 				//換下一個位置讀
 				pos++;
-				while (/*讀取位置(pos)的下一個內容也是數字*/) {
+			
+				while (/*讀取位置(pos)的下一個內容也是數字*/isDigit(s[pos+1])) {
 					//把stack裡的數字pop出來加上一個位數後、再加上「負的」下一個數字，再存回去stack
+					digs.pop();
 
-					//換下一個位置讀
-
+					pos++;//換下一個位置讀				
 				}
 			}
 			//數字是負數 情況2.
