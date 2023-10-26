@@ -12,15 +12,17 @@ private:
 	int capacity;//容量
 	double* digit;//指標數字
 public:
-	digstack() :top(-1), capacity(10) {///這是什麼鬼??
+	digstack() :top(-1), capacity(10) {///這個部分的目的是在建立 digstack 類別的物件時對成員變數 top 和 capacity 進行初始化。
 		digit = new double[capacity];
 	}
-	void push(double val);
-	double pop();
+	void push(double val);//放入函數的宣告
+	double pop();///這是函數的宣告
 	double cur();
 	void show();
 };
-void digstack::push(double val) {
+void digstack::push(double val) {/*///這是void push(double val)函數的定義拉!
+								 ::是作用域運算符（Scope Resolution Operator）。
+								 它的主要目的是指定某個實體（變數、函數、類別、命名空間等）屬於哪個範圍（作用域）。*/
 	if (top + 1 == capacity) {
 		cout << "dig stack is full!" << endl;
 		capacity = capacity * 2;//擴充空間，老師上課說的方法
@@ -29,7 +31,7 @@ void digstack::push(double val) {
 		delete[] digit;
 		digit = temp;
 	}
-	digit[++top] = val;
+	digit[++top] = val;//把我現在讀到的digit放入運算元digit[]這個陣列
 }
 double digstack::pop() {
 	if (top == -1) {
@@ -130,38 +132,40 @@ double calculate(double val1, double val2, char oper) {
 }
 
 double answer(string s) {//浮點數//答案//從這邊開始
-	digstack digs;//運算元digstack這個類別的digs
+	digstack digs;//運算元digstack這個類別的物件
 	operstack opers;//運算子
 	int pos = 0;//現在的位置
 
-	while (/*字串還沒有讀完*/) {
+	while (s[pos] != ' '/*字串還沒有讀完*/) {//不是空的時候
 		char spot = s[pos];//宣告一個字元spot，把s字串中的第pos這個位子的char給spot這個字元
-		if (/*如果是現在讀到的是數字*/isDigit(spot)==true) {///我有動過
-			digs.push(spot - 48);//因為是char所以要減48這樣才是數字
-			while (/*讀取位置(pos)的下一個內容也是數字*/isDigit(s[pos + 1])) {					
-				digs.pop();///我打的但不確定	//把stack裡最上方的數字pop出來，加上一個位數並加上下一個內容後，再存回stack
-
-				s[pos++];//換下一個位置讀取///我打的，不確定是要不要pos++
+		if (isDigit(spot) == true/*如果是現在讀到的是數字*/) {///我有動過
+			digs.push(spot - 48);//因為是char所以要減48這樣才是數字///digs這個成員要放入push(spot-48)就是我現在的這個運算元
+			while (isDigit(s[pos]) == true && isDigit(s[pos + 1]) == true/*讀取位置(pos)的下一個內容也是數字*/) {
+				digs.pop();///我打的但不確定	//把stack裡最上方的數字pop出來，
+											///為甚麼在這邊要加上一個位數並加上下一個內容後，再存回stack??
+				pos++;//換下一個位置讀取///知道了懂
 			}
 		}
 		else {
 			//數字是負數 情況1.
-			if (/* 現在讀到的是減號'-'&&現在位置是在最前面 */spot == '-' && pos == 0) {
+			if (spot == '-' && pos == 0/* 現在讀到的是減號'-'&&現在位置是在最前面 */) {
 				//把下一位數字變成負的，存進stack
-				digs.push(-(s[pos + 1] - 48));///變成數字
+				digs.push(-(s[pos + 1] - 48));///變成負的數字
 				//換下一個位置讀
 				pos++;
-			
-				while (/*讀取位置(pos)的下一個內容也是數字*/isDigit(s[pos+1])) {
-					//把stack裡的數字pop出來加上一個位數後、再加上「負的」下一個數字，再存回去stack
-					digs.pop();
 
+				while (isDigit(s[pos]) == true && isDigit(s[pos + 1]) == true/*讀取位置(pos)的下一個內容也是數字*/) {
+					//把stack裡的數字pop出來加上一個位數後、再加上「負的」下一個數字，再存回去stack
+										///為甚麼在這邊要加上一個位數並加上下一個內容後，再存回stack??
+					int dp;///我digit stack裡面被pop出來的東西要設一個變數
+					dp = digs.pop();
+					///加加加完了之後記就放進去這樣
 					pos++;//換下一個位置讀				
 				}
 			}
 			//數字是負數 情況2.
-			else if (/*如果是現在讀到的是減號'-'&&上一個位置的內容是運算元+-/*^(*/) {
-				//與情況1.相同
+			else if (isOp(s[pos]) == '-' && isOp(s[pos - 1] == '+' || '-' || '/' || '*' || '^' || '(')/*如果是現在讀到的是減號'-'&&上一個位置的內容是運算元+-/*^(*/) {
+				//與情況1.相同///一樣就抄
 
 
 
@@ -169,22 +173,29 @@ double answer(string s) {//浮點數//答案//從這邊開始
 			}
 			else {
 				//特殊情況:
-				if (/*現在讀取到的是'^' 並且oper stack最上方的內容也是'^'*/) {
-					//因為是右結合、最右邊的'^'要先處理
+				int dpo1, dpo2,dpu;
+				if (s[pos] == '^'&&opers.cur()=='^')/*現在讀取到的是'^' 並且oper stack最上方的內容也是'^'*/ {///後面的要怎麼打拉!!!??????////對不起我會了就很笨
+					dpo1=digs.pop();//因為是右結合、最右邊的'^'要先處理///要把最上面的pop出跟運算元去做運算，兩個都是要pop出來
+					dpo2 = digs.pop();
+					for (int i = 0,sam=1; i > dpo1; i++) {///用一個迴圈去算dpo2^dpo1
+						sam = sam * dpo2;
+
+					}
 				}
 				//特殊情況: 讀取到'('
-				else if (/* 讀取到'('*/) {
-
+				else if (s[pos] == '('/* 讀取到'('*/) {//運算子直接放進去
+					opers.push(s[pos]);
+					pos++;//繼續下一個位置去讀取
 
 				}
-				//特殊情況: 讀取到')'
-				else if (/*讀取到')'*/) {
-					if (/*oper stack內沒有左括號*/) {
+				//特殊情況: 讀取到')'///就不需要放入直接先跳出兩個做運算直到出現又括號'('為止
+				else if (s[pos] == ')'/*讀取到')'*/) {
+					if (/*oper stack內沒有左括號*/) {///不懂為甚麼因為operators[]是private那這樣我要怎麼知道去讀取裡面的東西
 						cout << "缺少左括號" << endl;
 						exit(1);
 					}
 					else {
-						while (/*直到讀取到左括號為止*/) {
+						while (s[pos] == ')'/*直到讀取到左括號為止*/) {
 
 							//做運算
 						}
