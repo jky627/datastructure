@@ -89,6 +89,7 @@ bool operstack::isEmpty() {
 	return (top == -1);
 }
 char operstack::cur() {//回傳當前最上方的運算子
+	if (top == -1) return ' ';
 	return operators[top];
 }
 
@@ -136,7 +137,7 @@ double answer(string s) {//浮點數//答案//從這邊開始
 	digstack digs;//運算元digstack這個類別的物件
 	operstack opers;//運算子
 	int pos = 0;//現在的位置
-	int dpo1, dpo2, dpu, oppo, final = 0;///oppo的是operators pop出來的,final是我後面運算的結果
+	int dpo1 = 0, dpo2 = 0, dpu = 0, oppo = 0, final = 0;///oppo的是operators pop出來的,final是我後面運算的結果
 
 	while (pos < s.length()/*字串還沒有讀完*/) {///不是空的時候，最後一個字元是\0啦白癡
 		char spot = s[pos];//宣告一個字元spot，把s字串中的第pos這個位子的char給spot這個字元
@@ -144,7 +145,7 @@ double answer(string s) {//浮點數//答案//從這邊開始
 			digs.push(spot - 48);//因為是char所以要減48這樣才是數字///digs這個成員要放入push(spot-48)就是我現在的這個運算元
 			while (isDigit(s[pos]) == true && isDigit(s[pos + 1]) == true/*讀取位置(pos)的下一個內容也是數字*/) {
 				dpo1 = digs.pop();///我打的但不確定	//把stack裡最上方的數字pop出來，52是兩個char
-				digs.push(s[pos] * 10 + dpo1);							///為甚麼在這邊要加上一個位數並加上下一個內容後，再存回stack??
+				digs.push(s[pos + 1] - 48 + dpo1 * 10);							///為甚麼在這邊要加上一個位數並加上下一個內容後，再存回stack??
 				pos++;//換下一個位置讀取///知道了懂
 			}
 		}
@@ -246,7 +247,7 @@ double answer(string s) {//浮點數//答案//從這邊開始
 		}
 
 		oppo = opers.pop();//Pop出一個運算子
-
+		
 		dpo1 = digs.pop();//Pop出兩個運算元
 		dpo2 = digs.pop();
 
