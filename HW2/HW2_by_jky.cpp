@@ -83,6 +83,7 @@ char operstack::pop() {//運算子彈出
 		return 0;
 	}
 	return operators[top--];
+
 }
 bool operstack::isEmpty() {
 	return (top == -1);
@@ -135,14 +136,15 @@ double answer(string s) {//浮點數//答案//從這邊開始
 	digstack digs;//運算元digstack這個類別的物件
 	operstack opers;//運算子
 	int pos = 0;//現在的位置
+	int dpo1, dpo2, dpu, oppo, final = 0;///oppo的是operators pop出來的,final是我後面運算的結果
 
-	while (s[pos] != ' '/*字串還沒有讀完*/) {//不是空的時候
+	while (pos < s.length()/*字串還沒有讀完*/) {///不是空的時候，最後一個字元是\0啦白癡
 		char spot = s[pos];//宣告一個字元spot，把s字串中的第pos這個位子的char給spot這個字元
 		if (isDigit(spot) == true/*如果是現在讀到的是數字*/) {///我有動過
 			digs.push(spot - 48);//因為是char所以要減48這樣才是數字///digs這個成員要放入push(spot-48)就是我現在的這個運算元
 			while (isDigit(s[pos]) == true && isDigit(s[pos + 1]) == true/*讀取位置(pos)的下一個內容也是數字*/) {
-				digs.pop();///我打的但不確定	//把stack裡最上方的數字pop出來，
-											///為甚麼在這邊要加上一個位數並加上下一個內容後，再存回stack??
+				dpo1 = digs.pop();///我打的但不確定	//把stack裡最上方的數字pop出來，52是兩個char
+				digs.push(s[pos] * 10 + dpo1);							///為甚麼在這邊要加上一個位數並加上下一個內容後，再存回stack??
 				pos++;//換下一個位置讀取///知道了懂
 			}
 		}
@@ -151,15 +153,15 @@ double answer(string s) {//浮點數//答案//從這邊開始
 			if (spot == '-' && pos == 0/* 現在讀到的是減號'-'&&現在位置是在最前面 */) {
 				//把下一位數字變成負的，存進stack
 				digs.push(-(s[pos + 1] - 48));///變成負的數字
-				//換下一個位置讀
-				pos++;
+				pos++;//換下一個位置讀
+
 
 				while (isDigit(s[pos]) == true && isDigit(s[pos + 1]) == true/*讀取位置(pos)的下一個內容也是數字*/) {
-					//把stack裡的數字pop出來加上一個位數後、再加上「負的」下一個數字，再存回去stack
-										///為甚麼在這邊要加上一個位數並加上下一個內容後，再存回stack??
+					dpo1 = digs.pop();//把stack裡的數字pop出來加上一個位數後、再加上「負的」下一個數字，再存回去stack-52
+					digs.push(s[pos] * 10 - dpo1);				///為甚麼在這邊要加上一個位數並加上下一個內容後，再存回stack??
 					int dp;///我digit stack裡面被pop出來的東西要設一個變數
 					dp = digs.pop();
-					///加加加完了之後記就放進去這樣
+					///加加加完了之後記就放進去這樣，dp要加上一個一個位數然後在加上下一個內容再存回去
 					pos++;//換下一個位置讀				
 				}
 			}
@@ -173,13 +175,12 @@ double answer(string s) {//浮點數//答案//從這邊開始
 			}
 			else {
 				//特殊情況:
-				int dpo1, dpo2,dpu;
-				if (s[pos] == '^'&&opers.cur()=='^')/*現在讀取到的是'^' 並且oper stack最上方的內容也是'^'*/ {///後面的要怎麼打拉!!!??????////對不起我會了就很笨
-					dpo1=digs.pop();//因為是右結合、最右邊的'^'要先處理///要把最上面的pop出跟運算元去做運算，兩個都是要pop出來
+				if (s[pos] == '^' && opers.cur() == '^')/*現在讀取到的是'^' 並且oper stack最上方的內容也是'^'*/ {///後面的要怎麼打拉!!!??????////對不起我會了就很笨
+					dpo1 = digs.pop();//因為是右結合、最右邊的'^'要先處理///要把最上面的pop出跟運算元去做運算，兩個都是要pop出來
 					dpo2 = digs.pop();
-					for (int i = 0,sam=1; i > dpo1; i++) {///用一個迴圈去算dpo2^dpo1
+					int sam = 1;//這是我次方完的結果
+					for (int i = 0; i > dpo1; i++) {///用一個迴圈去算dpo2^dpo1
 						sam = sam * dpo2;
-
 					}
 				}
 				//特殊情況: 讀取到'('
@@ -190,32 +191,41 @@ double answer(string s) {//浮點數//答案//從這邊開始
 				}
 				//特殊情況: 讀取到')'///就不需要放入直接先跳出兩個做運算直到出現又括號'('為止
 				else if (s[pos] == ')'/*讀取到')'*/) {
-					if (/*oper stack內沒有左括號*/) {///不懂為甚麼因為operators[]是private那這樣我要怎麼知道去讀取裡面的東西
+					if (opers.has_left == false/*oper stack內沒有左括號*/) {///不懂為甚麼因為operators[]是private那這樣我要怎麼知道去讀取裡面的東西
 						cout << "缺少左括號" << endl;
 						exit(1);
 					}
 					else {
-						while (s[pos] == ')'/*直到讀取到左括號為止*/) {
+						while (s[pos] == '('/*直到讀取到左括號為止*/) {
 
-							//做運算
+							oppo = opers.pop();//Pop出一個運算子//將結果存入dig stack//做運算///做完再把他放進去,這邊不太妙喔跟想的不一樣，看goodnotes
+
+							dpo1 = digs.pop();//Pop出兩個運算元
+							dpo2 = digs.pop();
+
+
+							final = calculate(dpo1, dpo2, oppo);//進行計算(使用calculate)
+
+							digs.push(final);
+
+
 						}
-						//把左括號pop出去(現在stack內沒有左括號)
-
-
+						opers.pop();//把左括號pop出去(現在stack內沒有左括號)
 					}
 				}
 				else {
-					while (/*如果讀到的運算子的層級 <= stack裡的最上層的運算子的層級(使用priority)*/) {
+					while (priority(s[pos]) <= priority(opers.cur())/*如果讀到的運算子的層級 <= stack裡的最上層的運算子的層級(使用priority)*/) {
 
-						//做運算
-						//Pop出一個運算子
+						//做運算///怎樣做運算，跟去計算是有什麼差別拉ㄍㄋㄋ
+						oppo = opers.pop();//Pop出一個運算子
 
-						//Pop出兩個運算元
+						dpo1 = digs.pop();//Pop出兩個運算元
+						dpo2 = digs.pop();
 
 
-						//進行計算(使用calculate)
+						final = calculate(dpo1, dpo2, oppo);//進行計算(使用calculate)
 
-						//將結果存入dig stack
+						digs.push(final);//將結果存入dig stack
 
 					}
 					//將現在讀到的運算子push進oper stack
@@ -228,14 +238,22 @@ double answer(string s) {//浮點數//答案//從這邊開始
 	}
 
 	//算式讀取結束，執行oper stack內所有運算子
-	while (/*當oper stack不是空的*/) {
+	while (opers.cur() != ' '/*當oper stack不是空的*/) {
 		//特殊情況:
-		if (/*遇到左括號*/) {
+		if (s[pos] == '('/*遇到左括號*/) {
 			cout << "缺少右括號" << endl;
 			exit(1);
 		}
 
-		//執行運算
+		oppo = opers.pop();//Pop出一個運算子
+
+		dpo1 = digs.pop();//Pop出兩個運算元
+		dpo2 = digs.pop();
+
+
+		final = calculate(dpo1, dpo2, oppo);//進行計算(使用calculate)
+
+		digs.push(final);//將結果存入dig stack//執行運算
 
 
 
